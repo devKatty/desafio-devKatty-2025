@@ -1,73 +1,115 @@
-import { Animal } from "./animal.js"
-
-function verificaOrdem(brinquedosPessoa, brinquedosAnimal) {
-  let i = 0
-  let j = 0
-
-  while (i < brinquedosPessoa.length && j < brinquedosAnimal.length) {
-    if (brinquedosPessoa[i] === brinquedosAnimal[j]) {
-      j++
-    }
-    i++
-  }
-
-  return j === brinquedosAnimal.length
-}
+import { Animal } from "./animal.js";
+import { Pessoa } from "./pessoa.js";
 
 class AbrigoAnimais {
-  constructor() {
+  constructor() { //inclusão direta dos animais do desafio
     this.animais = [
-      new Animal("Rex", "cão"),
-      new Animal("Mimi", "gato"),
-      new Animal("Fofo", "gato"),
-      new Animal("Zero", "gato"),
-      new Animal("Bola", "cão"),
-      new Animal("Bebe", "cão"),
-      new Animal("Loco", "jabuti")
+      new Animal("Rex",  "cão",      "RATO", "BOLA"),
+      new Animal("Mimi", "gato",     "BOLA", "LASER"),
+      new Animal("Fofo", "gato",     "BOLA", "RATO", "LASER"),
+      new Animal("Zero", "gato",     "RATO", "BOLA"),
+      new Animal("Bola", "cão",      "CAIXA", "NOVELO"),
+      new Animal("Bebe", "cão",      "LASER", "RATO", "BOLA"),
+      new Animal("Loco", "jabuti",   "SKATE", "RATO")
     ]
 
-    this.animais[0].adicionaBrinquedo(["RATO", "BOLA"])
-    this.animais[1].adicionaBrinquedo(["BOLA", "LASER"])
-    this.animais[2].adicionaBrinquedo(["BOLA", "RATO", "LASER"])
-    this.animais[3].adicionaBrinquedo(["RATO", "BOLA"])
-    this.animais[4].adicionaBrinquedo(["CAIXA", "NOVELO"])
-    this.animais[5].adicionaBrinquedo(["LASER", "RATO", "BOLA"])
-    this.animais[6].adicionaBrinquedo(["SKATE", "RATO"])
-  }
+    const regraEspecialGato = (gato, pessoa) => {
+      const brinquedosUsados = pessoa.animaisAdotados.flatMap( animal => animal.brinquedos);
+      const meusBrinquedos = gato.brinquedos;
+      const temBrinquedosDivididos = brinquedosUsados.filter( brinquedo => meusBrinquedos.includes(value) ).length > 0;
 
-  encontraAnimal(nome) {
-    const animal = this.animais.find(a => a.nome === nome)
-    return animal || false
-  }
+      if (temBrinquedosDivididos)
+        return false; //não é adotável
 
-  encontraPessoas(brinquedosPessoa1, brinquedosPessoa2, ordemAnimais) {
-    const ordemAnimaisArray = ordemAnimais.split(",")
-    const resultados = []
-
-    for (let i = 0; i < ordemAnimaisArray.length; i++) {
-      const nome = ordemAnimaisArray[i].trim()
-      const animal = this.encontraAnimal(nome)
-
-      if (animal === false) {
-        return { lista: null, erro: 'Animal inválido' }
-      }
-
-      const pessoa1 = verificaOrdem(brinquedosPessoa1, animal.brinquedos)
-      const pessoa2 = verificaOrdem(brinquedosPessoa2, animal.brinquedos)
-
-      if (pessoa1 && pessoa2) {
-        resultados.push(`${nome} - abrigo`)
-      } else if (pessoa1) {
-        resultados.push(`${nome} - pessoa 1`)
-      } else if (pessoa2) {
-        resultados.push(`${nome} - pessoa 2`)
-      } else {
-        resultados.push(`${nome} - abrigo`)
-      }
+      return true;
     }
 
-    return { lista: resultados, erro: null }
+    const regraEspecialLoco = (loco, pessoa) => {
+      const brinquedosEmComum = loco.brinquedos.filter(brinquedo => pessoa.brinquedos.includes(brinquedo));
+      const temMeusBrinquedos = brinquedosEmComum.length === loco.brinquedos.length;
+      const tenhoAmigos = pessoa.animaisAdotados.length > 0;
+
+      if (temMeusBrinquedos && tenhoAmigos)
+        gato.setAdotavel(true);
+
+      //como o Loco é mais permissivo, alterei diretamente a variavel "adotavel", e retornei True para não afetar na expressão booleana
+      return true; 
+    }
+
+    this.animais[0].setRegrasEspeciais(regraEspecialGato);
+    this.animais[1].setRegrasEspeciais(regraEspecialGato);
+    this.animais[2].setRegrasEspeciais(regraEspecialGato);
+
+    this.animais[6].setRegrasEspeciais(regraEspecialLoco);
+
   }
+
+  #encontraAnimal(nome) {
+    const animal = this.animais.find(a => a.nome === nome)
+    return animal || false;
+  }
+
+  #temAnimaisDuplicados (ordem) {
+    const set = new Set(ordem); //um Set não possui valores duplicados
+    return [...set].length !== ordem.length;
+  }
+
+  #temAnimalForaDaLista (ordem) {
+    for (let i = 0; i < ordem.length; i++) {
+      const nomeAnimal = ordem[i];
+      if (this.#encontraAnimal(nomeAnimal) === false){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //função principal
+  encontraPessoas(brinquedosPessoa1, brinquedosPessoa2, ordemAnimais) {
+    const ordemAnimaisArray = ordemAnimais.split(",");
+    const resultados = [];
+
+    if (this.#temAnimaisDuplicados(ordemAnimaisArray) || this.#temAnimalForaDaLista(ordemAnimaisArray)) {
+      return { lista: null, erro: 'Animal inválido' };
+    }
+
+    const pessoa1 = new Pessoa(1, brinquedosPessoa1);
+    const pessoa2 = new Pessoa(2, brinquedosPessoa2);
+
+    for (let i = 0; i < ordemAnimaisArray.length; i++) {
+      const nome = ordemAnimaisArray[i].trim();
+      const animal = this.#encontraAnimal(nome);
+      if (animal === false) {
+        return { lista: null, erro: 'Animal inválido' };
+      }
+
+      const aptoPessoa1 = animal.ehAdotavelPor(pessoa1);
+      const aptoPessoa2 = animal.ehAdotavelPor(pessoa2);
+
+      const apto = (aptoPessoa1 || aptoPessoa2) && !(aptoPessoa1 && aptoPessoa2); //XOR das pessoas, regra 4
+      if (apto) {
+        if (aptoPessoa1) {
+          animal.destino = pessoa1.nome; //destino por padrão: "abrigo"
+          pessoa1.animaisAdotados.push(animal);
+        } else {
+          animal.destino = pessoa2.nome;
+          pessoa2.animaisAdotados.push(animal);
+        }
+      }
+
+      resultados.push(`${animal.nome} - ${animal.destino}`);
+    }
+
+    const  resultadoOrdenado = resultados.sort((a, b) => {
+        const nomeA = a.split(" - ")[0].toLowerCase();
+        const nomeB = b.split(" - ")[0].toLowerCase();
+        return nomeA.localeCompare(nomeB);
+      })
+
+    return { lista: resultadoOrdenado, erro: null };
+    
+  }
+
 }
 
 export { AbrigoAnimais }
