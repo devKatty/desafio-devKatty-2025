@@ -4,19 +4,19 @@ import { Pessoa } from "./pessoa.js";
 class AbrigoAnimais {
   constructor() { //inclusão direta dos animais do desafio
     this.animais = [
-      new Animal("Rex",  "cão",      "RATO", "BOLA"),
-      new Animal("Mimi", "gato",     "BOLA", "LASER"),
-      new Animal("Fofo", "gato",     "BOLA", "RATO", "LASER"),
-      new Animal("Zero", "gato",     "RATO", "BOLA"),
-      new Animal("Bola", "cão",      "CAIXA", "NOVELO"),
-      new Animal("Bebe", "cão",      "LASER", "RATO", "BOLA"),
-      new Animal("Loco", "jabuti",   "SKATE", "RATO")
+      new Animal("Rex",  "cão",      "RATO",  "BOLA"         ),
+      new Animal("Mimi", "gato",     "BOLA",  "LASER"        ),
+      new Animal("Fofo", "gato",     "BOLA",  "RATO", "LASER"),
+      new Animal("Zero", "gato",     "RATO",  "BOLA"         ),
+      new Animal("Bola", "cão",      "CAIXA", "NOVELO"       ),
+      new Animal("Bebe", "cão",      "LASER", "RATO", "BOLA" ),
+      new Animal("Loco", "jabuti",   "SKATE", "RATO"         )
     ]
 
-    const regraEspecialGato = (gato, pessoa) => {
+    const regraEspecialGato = (gato, pessoa) => { //regra 3
       const brinquedosUsados = pessoa.animaisAdotados.flatMap( animal => animal.brinquedos);
       const meusBrinquedos = gato.brinquedos;
-      const temBrinquedosDivididos = brinquedosUsados.filter( brinquedo => meusBrinquedos.includes(value) ).length > 0;
+      const temBrinquedosDivididos = brinquedosUsados.filter( brinquedo => meusBrinquedos.includes(brinquedo) ).length > 0;
 
       if (temBrinquedosDivididos)
         return false; //não é adotável
@@ -24,15 +24,25 @@ class AbrigoAnimais {
       return true;
     }
 
-    const regraEspecialLoco = (loco, pessoa) => {
+    const regraEspecialLoco = (loco, pessoa) => { //regra 6
       const brinquedosEmComum = loco.brinquedos.filter(brinquedo => pessoa.brinquedos.includes(brinquedo));
       const temMeusBrinquedos = brinquedosEmComum.length === loco.brinquedos.length;
       const tenhoAmigos = pessoa.animaisAdotados.length > 0;
 
-      if (temMeusBrinquedos && tenhoAmigos)
-        gato.setAdotavel(true);
+      if (temMeusBrinquedos && tenhoAmigos){
+        loco.setAdotavel(true);
+        loco.destino = pessoa.nome;
+      }
+      
+      console.log(`${temMeusBrinquedos}, ${tenhoAmigos}`)
 
-      //como o Loco é mais permissivo, alterei diretamente a variavel "adotavel", e retornei True para não afetar na expressão booleana
+      /**
+       * Como o Loco tem uma regra Permissiva,
+       * Se Adotavel fosse false, mesmo que a regra passasse,
+       * Loco não seria adotado.
+       * Para contornar o problema, setei diretamente Adotavel para true
+       * e retornei true para a função ter efeito neutro nos filtros
+       */
       return true; 
     }
 

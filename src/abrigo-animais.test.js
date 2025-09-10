@@ -29,3 +29,38 @@ describe('Abrigo de Animais', () => {
       expect(resultado.erro).toBeFalsy();
   });
 });
+
+
+describe('regras específicas do Gato', () => {
+  test('Deve Aceitar Bola e Mimi', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('BOLA,CAIXA,LASER,NOVELO','RATO','Bola,Mimi');
+
+    expect(resultado.lista[0]).toBe('Bola - pessoa 1');
+    expect(resultado.lista[1]).toBe('Mimi - pessoa 1');
+  });
+
+  test('Fofo fica no abrigo', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('BOLA,RATO,LASER','RATO','Mimi,Fofo');
+
+    expect(resultado.lista[0]).toBe('Fofo - abrigo');
+    expect(resultado.lista[1]).toBe('Mimi - pessoa 1');
+  });
+
+
+  test('Mimi fica no abrigo', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('BOLA,RATO,LASER','RATO','Fofo,Mimi');
+
+    expect(resultado.lista[0]).toBe('Fofo - pessoa 1');
+    expect(resultado.lista[1]).toBe('Mimi - abrigo');
+  });
+});
+
+describe('regras específicas do Loco', () => {
+  test('Loco tem amigos e brinquedos na ordem errada', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas('RATO,SKATE,BOLA','RATO','Zero,Loco');
+
+    expect(resultado.lista[0]).toBe('Loco - pessoa 1');
+    expect(resultado.lista[1]).toBe('Zero - pessoa 1');
+
+  });
+});
