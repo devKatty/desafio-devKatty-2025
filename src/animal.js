@@ -46,7 +46,6 @@ class Animal{
         return adotavel;
     }
 
-    //TODO: comentar estratégia
     #verificaOrdem(brinquedosPessoa) {
         brinquedosPessoa = brinquedosPessoa.split(',');
 
